@@ -7,6 +7,7 @@ robot = Robot()
 
 # Get the time step of the current world.
 timestep = int(robot.getBasicTimeStep())
+print (timestep)
 
 # Initialize base motors.
 wheels = []
@@ -54,17 +55,27 @@ finger2.setVelocity(0.03)
 fingerMinPosition = finger1.getMinPosition()
 fingerMaxPosition = finger1.getMaxPosition()
 
+#temporizador = angulo percorrido/omega
+#angulo percorrido = 520*0.016*7 = 58.24 rad
+#distancia percorrida = raio roda * angulo percorrido
+#distancia percorrida = 0.05*58.24 = 2.912m
+#https://github.com/cyberbotics/pick-and-place-competition/blob/main/controllers/participant/participant.py#L61
+omega=7.0
+angulo_percorrido=2.912/0.05
+
+temporizador = angulo_percorrido/omega
 # Move forward.
 for wheel in wheels:
-    wheel.setVelocity(7.0)
+    wheel.setVelocity(omega)
 # Wait until the robot is in front of the box.
-robot.step(520 * timestep)
+robot.step(int(temporizador*1000)+16)
 
 # Stop moving forward.
 for wheel in wheels:
     wheel.setVelocity(0.0)
 
 # Move arm and open gripper.
+armMotors[0].setPosition(0.05)
 armMotors[1].setPosition(-0.55)
 armMotors[2].setPosition(-0.9)
 armMotors[3].setPosition(-1.5)
@@ -89,17 +100,36 @@ armMotors[1].setPosition(0)
 robot.step(200 * timestep)
 
 # Rotate the robot.
-wheels[0].setVelocity(2.5)
-wheels[1].setVelocity(-2.5)
-wheels[2].setVelocity(2.5)
-wheels[3].setVelocity(-2.5)
-# Wait for a fixed amount to step that the robot rotates.
-robot.step(690 * timestep)
+#temporizador = 690*.016= 11.04seg
+#angulo rotacao = omega * temporizador
+#angulo rotacao = 2.5*11.04 = 27.6 radianos
+#https://github.com/cyberbotics/pick-and-place-competition/blob/main/controllers/participant/participant.py#L97
 
+omega_rot = 8
+temporizador_rot = 27.5/omega_rot
+wheels[0].setVelocity(omega_rot)
+wheels[1].setVelocity(-omega_rot)
+wheels[2].setVelocity(omega_rot)
+wheels[3].setVelocity(-omega_rot)
+# Wait for a fixed amount to step that the robot rotates.
+robot.step(int(temporizador_rot*1000))
+
+for wheel in wheels:
+    wheel.setVelocity(0.0)
+#andar para a frente
+#temporizador = angulo percorrido/omega
+#angulo percorrido = 900*0.016*2.5 = 36 rad
+#distancia percorrida = raio roda * angulo percorrido
+#distancia percorrida = 0.05*36 = 1.8m
 # Move forward.
-wheels[1].setVelocity(2.5)
-wheels[3].setVelocity(2.5)
-robot.step(900 * timestep)
+omega=2.5
+angulo_percorrido=1.8/0.05
+temporizador = angulo_percorrido/omega
+wheels[0].setVelocity(omega)
+wheels[1].setVelocity(omega)
+wheels[3].setVelocity(omega)
+wheels[2].setVelocity(omega)
+robot.step(int(temporizador*1000))
 
 # Rotate the robot.
 wheels[0].setVelocity(1.0)
