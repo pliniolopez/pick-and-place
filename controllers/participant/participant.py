@@ -49,8 +49,8 @@ for sensor in armPositionSensors:
 finger1 = robot.getDevice("finger1")
 finger2 = robot.getDevice("finger2")
 # Set the maximum motor velocity.
-finger1.setVelocity(0.03)
-finger2.setVelocity(0.03)
+finger1.setVelocity(0.05)
+finger2.setVelocity(0.05)
 # Read the minium and maximum position of the gripper motors.
 fingerMinPosition = finger1.getMinPosition()
 fingerMaxPosition = finger1.getMaxPosition()
@@ -60,7 +60,7 @@ fingerMaxPosition = finger1.getMaxPosition()
 #distancia percorrida = raio roda * angulo percorrido
 #distancia percorrida = 0.05*58.24 = 2.912m
 #https://github.com/cyberbotics/pick-and-place-competition/blob/main/controllers/participant/participant.py#L61
-omega=7.0
+omega=7.0 #mudar este valor para os valores pedidos no enunciado
 angulo_percorrido=2.912/0.05
 
 temporizador = angulo_percorrido/omega
@@ -82,9 +82,10 @@ armMotors[3].setPosition(-1.5)
 finger1.setPosition(fingerMaxPosition)
 finger2.setPosition(fingerMaxPosition)
 
-# Monitor the arm joint position to detect when the motion is completed.
+# Controlo em malha fechada, utilizando o sensor de posição do angulo do motor
+delta_angulo = 0.25
 while robot.step(timestep) != -1:
-    if abs(armPositionSensors[3].getValue() - (-1.2)) < 0.01:
+    if abs(armPositionSensors[3].getValue() - (-1.5)) < delta_angulo:
         # Motion completed.
         break
 
@@ -105,7 +106,7 @@ robot.step(200 * timestep)
 #angulo rotacao = 2.5*11.04 = 27.6 radianos
 #https://github.com/cyberbotics/pick-and-place-competition/blob/main/controllers/participant/participant.py#L97
 
-omega_rot = 8
+omega_rot = 7
 temporizador_rot = 27.5/omega_rot
 wheels[0].setVelocity(omega_rot)
 wheels[1].setVelocity(-omega_rot)
@@ -177,3 +178,8 @@ robot.step(50 * timestep)
 finger1.setPosition(fingerMaxPosition)
 finger2.setPosition(fingerMaxPosition)
 robot.step(50 * timestep)
+
+# Lift arm.
+armMotors[1].setPosition(0)
+# Wait until the arm is lifted.
+robot.step(200 * timestep)
